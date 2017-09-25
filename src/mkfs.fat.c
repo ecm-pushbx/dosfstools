@@ -506,6 +506,7 @@ static void establish_params(struct device_info *info)
     unsigned int cluster_size = 4;  /* starting point for FAT12 and FAT16 */
     int def_root_dir_entries = 512;
 
+#if 0
     if (info->size < 512 * 1024 * 1024) {
 	/*
 	 * These values are more or less meaningless, but we can at least
@@ -515,6 +516,7 @@ static void establish_params(struct device_info *info)
 	sec_per_track = 32;
 	heads = 64;
     }
+#endif
 
     if (info->type != TYPE_FIXED) {
 	/* enter default parameters for floppy disks if the size matches */
