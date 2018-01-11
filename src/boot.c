@@ -465,7 +465,7 @@ void read_boot(DOS_FS * fs)
 }
 
 static void write_boot_label_or_serial(int label_mode, DOS_FS * fs,
-	char *label, uint32_t serial)
+	const char *label, uint32_t serial)
 {
     if (fs->fat_bits == 12 || fs->fat_bits == 16) {
 	struct boot_sector_16 b16;
@@ -507,7 +507,7 @@ static void write_boot_label_or_serial(int label_mode, DOS_FS * fs,
     }
 }
 
-static void write_boot_label(DOS_FS * fs, char *label)
+static void write_boot_label(DOS_FS * fs, const char *label)
 {
     write_boot_label_or_serial(1, fs, label, 0);
 }
@@ -530,7 +530,13 @@ off_t find_volume_de(DOS_FS * fs, DIR_ENT * de)
 	    offset = cluster_start(fs, cluster);
 	    for (i = 0; i * sizeof(DIR_ENT) < fs->cluster_size; i++) {
 		fs_read(offset, sizeof(DIR_ENT), de);
-		if (de->attr != VFAT_LN_ATTR && de->attr & ATTR_VOLUME)
+
+		/* no point in scanning after end of directory marker */
+		if (!de->name[0])
+		    return 0;
+
+		if (!IS_FREE(de->name) &&
+		    de->attr != VFAT_LN_ATTR && de->attr & ATTR_VOLUME)
 		    return offset;
 		offset += sizeof(DIR_ENT);
 	    }
@@ -539,7 +545,13 @@ off_t find_volume_de(DOS_FS * fs, DIR_ENT * de)
 	for (i = 0; i < fs->root_entries; i++) {
 	    offset = fs->root_start + i * sizeof(DIR_ENT);
 	    fs_read(offset, sizeof(DIR_ENT), de);
-	    if (de->attr != VFAT_LN_ATTR && de->attr & ATTR_VOLUME)
+
+	    /* no point in scanning after end of directory marker */
+	    if (!de->name[0])
+		return 0;
+
+	    if (!IS_FREE(de->name) &&
+		de->attr != VFAT_LN_ATTR && de->attr & ATTR_VOLUME)
 		return offset;
 	}
     }
@@ -561,7 +573,11 @@ static void write_volume_label(DOS_FS * fs, char *label)
 	created = 1;
 	offset = alloc_rootdir_entry(fs, &de, label, 0);
     }
+
     memcpy(de.name, label, 11);
+    if (de.name[0] == 0xe5)
+	de.name[0] = 0x05;
+
     de.time = htole16((unsigned short)((mtime->tm_sec >> 1) +
 				       (mtime->tm_min << 5) +
 				       (mtime->tm_hour << 11)));
@@ -591,4 +607,19 @@ void write_label(DOS_FS * fs, char *label)
 
     write_boot_label(fs, label);
     write_volume_label(fs, label);
+}
+
+void remove_label(DOS_FS *fs)
+{
+    off_t offset;
+    DIR_ENT de;
+
+    write_boot_label(fs, "NO NAME    ");
+
+    offset = find_volume_de(fs, &de);
+    if (offset) {
+	/* mark entry as deleted */
+	de.name[0] = 0xe5;
+	fs_write(offset, sizeof(DIR_ENT), &de);
+    }
 }

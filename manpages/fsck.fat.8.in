@@ -21,7 +21,7 @@
 .\"
 .TH FSCK.FAT 8 2017\-06\-28 "dosfstools @PACKAGE_VERSION@"
 .SH NAME
-\fBfsck.fat\fR \- check and repair MS\-DOS FAT filesystems
+fsck.fat \- check and repair MS\-DOS FAT filesystems
 .\" ----------------------------------------------------------------------------
 .SH SYNOPSIS
 \fBfsck.fat\fR [\fIOPTIONS\fR] \fIDEVICE\fR
@@ -197,9 +197,8 @@ Should give more diagnostic messages.
 Undeleting files should use a more sophisticated algorithm.
 .\" ----------------------------------------------------------------------------
 .SH SEE ALSO
-\fBfatlabel\fR(8)
-.br
-\fBmkfs.fat\fR(8)
+.BR fatlabel (8),
+.BR mkfs.fat (8)
 .\" ----------------------------------------------------------------------------
 .SH HOMEPAGE
 The home for the \fBdosfstools\fR project is its

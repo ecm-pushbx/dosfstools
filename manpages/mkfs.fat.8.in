@@ -20,9 +20,9 @@
 .\" can be found in /usr/share/common-licenses/GPL-3 file.
 .\"
 .\"
-.TH MKFS.FAT 8 2016\-06\-28 "dosfstools @PACKAGE_VERSION@"
+.TH MKFS.FAT 8 2017\-10\-01 "dosfstools @PACKAGE_VERSION@"
 .SH NAME
-\fBmkfs.fat\fR \- create an MS\-DOS FAT filesystem
+mkfs.fat \- create an MS\-DOS FAT filesystem
 .\" ----------------------------------------------------------------------------
 .SH SYNOPSIS
 \fBmkfs.fat\fR [\fIOPTIONS\fR] \fIDEVICE\fR [\fIBLOCK-COUNT\fR]
@@ -129,6 +129,9 @@ This value is usually 0xF8 for hard disks and is 0xF0 or a value from 0xF9 to
 .IP "\fB\-n\fR \fIVOLUME-NAME\fR" 4
 Sets the volume name (label) of the filesystem.
 The volume name can be up to 11 characters long.
+Supplying an empty string, a string consisting only of white space or the
+string "NO NAME" as \fIVOLUME-NAME\fR has the same effect as not giving the
+\fB\-n\fR option.
 The default is no label.
 .IP "\fB\-r\fR \fIROOT-DIR-ENTRIES\fR" 4
 Select the number of entries available in the root directory.
@@ -169,9 +172,8 @@ has been discussed a lot already.
 \fBmkfs.fat\fR simply will not support it ;)
 .\" ----------------------------------------------------------------------------
 .SH SEE ALSO
-\fBfatlabel\fR(8)
-.br
-\fBfsck.fat\fR(8)
+.BR fatlabel (8),
+.BR fsck.fat (8)
 .\" ----------------------------------------------------------------------------
 .SH HOMEPAGE
 The home for the \fBdosfstools\fR project is its

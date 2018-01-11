@@ -1326,7 +1326,7 @@ int main(int argc, char **argv)
 
     gettimeofday(&create_timeval, NULL);
     create_time = create_timeval.tv_sec;
-    volume_id = (uint32_t) ((create_timeval.tv_sec << 20) | create_timeval.tv_usec);	/* Default volume ID = creation time, fudged for more uniqueness */
+    volume_id = generate_volume_id();
     check_atari();
 
     printf("mkfs.fat " VERSION " (" VERSION_DATE ")\n");
@@ -1486,6 +1486,8 @@ int main(int argc, char **argv)
 
 	case 'n':		/* n : Volume name */
 	    sprintf(volume_name, "%-11.11s", optarg);
+	    if (memcmp(volume_name, "           ", MSDOS_NAME) == 0)
+	        memcpy(volume_name, NO_NAME, MSDOS_NAME);
 	    for (i = 0; volume_name[i] && i < 11; i++)
 		/* don't know if here should be more strict !uppercase(label[i]) */
 		if (islower(volume_name[i])) {
@@ -1563,9 +1565,14 @@ int main(int argc, char **argv)
 	    }
 	    break;
 
-	default:
-	    printf("Unknown option: %c\n", c);
+	case '?':
 	    usage(argv[0], 1);
+	    exit(1);
+
+	default:
+	    fprintf(stderr,
+		    "Internal error: getopt_long() returned unexpected value %d\n", c);
+	    exit(2);
 	}
 
     if (optind == argc || !argv[optind]) {
